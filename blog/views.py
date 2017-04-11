@@ -3,6 +3,7 @@ from flask import request, redirect, url_for
 
 from . import app
 from .database import session, Entry
+from sqlalchemy.sql import table, column, select, update, insert
 
 PAGINATE_BY = 10
 
@@ -51,3 +52,18 @@ def add_entry_post():
 def view_entry(id):
     entry = session.query(Entry).get(id)
     return render_template("entry.html", entry=entry)
+
+@app.route("/entry/<id>/edit", methods=["GET"])
+def edit_entry_get(id):
+    entry = session.query(Entry).get(id)
+    return render_template("edit_entry.html", entry=entry)
+
+@app.route("/entry/<id>/edit", methods=["POST"])
+def edit_entry_post(id):
+    entry = Entry(
+        title=request.form["title"],
+        content=request.form["content"],
+    )
+    #session.add(entry) #this adds a new entry, needs to be removed
+    session.commit()
+    return redirect(url_for("view_entry", id=id))
